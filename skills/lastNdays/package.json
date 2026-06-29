@@ -1,0 +1,15 @@
+{
+  "name": "lastndays",
+  "module": "scripts/index.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "scripts": {
+    "start": "bun run scripts/index.ts"
+  },
+  "type": "module"
+}

@@ -1,0 +1,10 @@
+{
+  "name": "lastNdays",
+  "version": "0.1.0",
+  "description": "Research what is actually new about any topic in a recent time window. Full-content web results via Firecrawl, plus honest engagement signals from Hacker News and GitHub. No LLM key needed - the agent harness synthesizes the brief.",
+  "author": { "name": "Firecrawl", "url": "https://github.com/firecrawl" },
+  "homepage": "https://github.com/firecrawl/lastNdays",
+  "repository": "https://github.com/firecrawl/lastNdays",
+  "license": "MIT",
+  "keywords": ["research", "recency", "firecrawl", "web-search", "hackernews", "github", "citations"]
+}
