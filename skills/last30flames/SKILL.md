@@ -1,11 +1,11 @@
 ---
-name: lastNdays
+name: last30flames
 description: "Research what is actually new about any topic in a recent time window. Pulls full-content web results (Firecrawl) plus honest engagement signals from Hacker News and GitHub, then you synthesize a short, source-grounded brief."
-argument-hint: 'lastNdays AI coding agents | lastNdays local LLM inference --days 7'
+argument-hint: 'last30flames AI coding agents | last30flames local LLM inference --days 7'
 allowed-tools: Bash, Read
 user-invocable: true
-homepage: https://github.com/firecrawl/lastNdays
-repository: https://github.com/firecrawl/lastNdays
+homepage: https://github.com/firecrawl/last30flames
+repository: https://github.com/firecrawl/last30flames
 license: MIT
 metadata:
   openclaw:
@@ -26,7 +26,7 @@ metadata:
     - citations
 ---
 
-# lastNdays
+# last30flames
 
 Research a topic across the **recent** web and write a short, source-grounded brief.
 

@@ -1,4 +1,4 @@
-# lastNdays
+# last30flames
 
 A Claude Code / OpenClaw / opencode **skill** that researches what is actually
 new about any topic in a recent time window.
@@ -27,13 +27,13 @@ It only needs the `bun` binary - no API key required.
 In Claude Code, via the plugin marketplace:
 
 ```
-/plugin marketplace add firecrawl/lastNdays
-/plugin install lastNdays
+/plugin marketplace add firecrawl/last30flames
+/plugin install last30flames
 ```
 
-In any other harness, point it at this repo's `skills/lastNdays/SKILL.md` (or copy
+In any other harness, point it at this repo's `skills/last30flames/SKILL.md` (or copy
 that folder into the harness's skills directory). The engine is launched through
-`skills/lastNdays/scripts/run.sh`, which self-locates and installs deps on first
+`skills/last30flames/scripts/run.sh`, which self-locates and installs deps on first
 run - no harness-specific environment variables required.
 
 Keys are optional - it runs keyless. Set either only to raise rate limits:
@@ -59,18 +59,18 @@ to the keyless free tier. Same binary, same skill - only the rate limits change.
 ## Use
 
 ```
-/lastNdays AI coding agents
-/lastNdays local LLM inference --days 7
+/last30flames AI coding agents
+/last30flames local LLM inference --days 7
 ```
 
 `--days` sets the recency window (default 30). Any number works - 7, 30, 365.
 
 ## Run the engine directly
 
-The engine is a tiny Bun + TypeScript project under `skills/lastNdays`:
+The engine is a tiny Bun + TypeScript project under `skills/last30flames`:
 
 ```bash
-cd skills/lastNdays
+cd skills/last30flames
 bun install
 bun run scripts/index.ts "AI coding agents" --days 30
 ```
@@ -82,7 +82,7 @@ can pipe it (`> context.md`) or let the agent read it.
 
 ```
 .claude-plugin/        plugin.json + marketplace.json (distribution)
-skills/lastNdays/
+skills/last30flames/
   SKILL.md             how the agent invokes the engine and writes the brief
   scripts/             the engine (one file per job, all small)
     index.ts           CLI entry: parse args, gather in parallel, print context

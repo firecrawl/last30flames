@@ -1,16 +1,16 @@
 {
-  "name": "lastNdays",
+  "name": "last30flames",
   "owner": { "name": "Firecrawl", "url": "https://github.com/firecrawl" },
-  "metadata": { "description": "Marketplace hosting the lastNdays research skill." },
+  "metadata": { "description": "Marketplace hosting the last30flames research skill." },
   "plugins": [
     {
-      "name": "lastNdays",
+      "name": "last30flames",
       "description": "Research what is actually new about any topic in a recent time window, using Firecrawl full-content search plus Hacker News and GitHub engagement signals.",
       "version": "0.1.0",
       "author": { "name": "Firecrawl", "url": "https://github.com/firecrawl" },
       "source": "./",
       "category": "productivity",
-      "homepage": "https://github.com/firecrawl/lastNdays"
+      "homepage": "https://github.com/firecrawl/last30flames"
     }
   ]
 }
