@@ -34,6 +34,13 @@ In Claude Code, via the plugin marketplace:
 /plugin install last30flames
 ```
 
+Via [skills.sh](https://www.skills.sh/) (works across Claude Code, Cursor, Codex,
+and other agents):
+
+```
+npx skills add firecrawl/last30flames
+```
+
 In any other harness, point it at this repo's `skills/last30flames/SKILL.md` (or copy
 that folder into the harness's skills directory). The engine is launched through
 `skills/last30flames/scripts/run.sh`, which self-locates and installs deps on first
