@@ -1,6 +1,6 @@
 ---
 name: last30flames
-description: "Research what is actually new about any topic in a recent time window. Pulls full-content web results (Firecrawl) plus honest engagement signals from Hacker News and GitHub, then you synthesize a short, source-grounded brief."
+description: "Research what's genuinely new about a topic in a recent time window. Use when the user asks what's new, recent, or trending on a subject and wants a source-grounded brief rather than a quick lookup."
 argument-hint: 'last30flames AI coding agents | last30flames local LLM inference --days 7'
 allowed-tools: Bash, Read
 user-invocable: true
