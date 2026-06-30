@@ -3,6 +3,9 @@
 A Claude Code / OpenClaw / opencode **skill** that researches what is actually
 new about any topic in a recent time window.
 
+> Inspired by [last30days](https://github.com/mvanhorn/last30days-skill) by Matt
+> Van Horn.
+
 It gathers three signals **in parallel** and hands them to the agent to write a
 short, source-grounded brief:
 
