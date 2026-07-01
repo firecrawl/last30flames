@@ -68,6 +68,26 @@ to the keyless free tier. Same binary, same skill - only the rate limits change.
 
 `--days` sets the recency window (default 30). Any number works - 7, 30, 365.
 
+### Save and reuse research
+
+Ask the skill to save a run, and it writes the raw research context to a thread
+folder under `~/.last30flames/` (findable from any later session):
+
+```
+/last30flames AI coding agents, save this to my ai-agents research
+```
+
+Related calls in the same session land in the same thread. In a later session,
+reload it without re-scraping:
+
+```
+/last30flames load my ai-agents research
+/last30flames using my saved ai-agents research, what did I find on local inference?
+```
+
+If a saved context is older than its recency window, the skill warns you it's
+stale and offers to re-run fresh.
+
 ## Run the engine directly
 
 The engine is a tiny Bun + TypeScript project under `skills/last30flames`:

@@ -73,6 +73,63 @@ both. The only requirement is the `bun` binary; no API key is needed (set
 Progress prints to stderr; the numbered research context prints to stdout. Read
 the stdout - that is your evidence.
 
+## Save & reuse the context (optional)
+
+By default, do not write any files - just synthesize the brief. Only save when
+the user asks (e.g. "save the context", "I'll want this again later").
+
+Saved contexts live under `~/.last30flames/`, grouped into **thread folders** so a
+run of related calls can be reloaded as one set. A thread is just a named
+subdirectory; each call saves its own file, which keeps every call's `[1]`, `[2]`
+citation numbering intact (never concatenate two contexts into one file - the
+numbering would collide):
+
+```
+~/.last30flames/<thread>/
+  <slug>-<YYYY-MM-DD>.md      # one file per engine call
+```
+
+**On save:** redirect the engine's stdout so the *raw numbered research context* is
+preserved (that is the reusable evidence - not the brief). Pick the thread folder
+first:
+
+- If the user names a thread ("save this to my ai-agents research"), slugify it as
+  `<thread>`.
+- Otherwise reuse the thread from earlier saves in this same conversation, so
+  related calls land together.
+- If neither applies, derive `<thread>` from the topic and tell the user the name
+  you chose so they can reference it later.
+
+Then create the folder and write the file, and report the exact path afterward:
+
+```bash
+mkdir -p ~/.last30flames/<thread>
+bash <SKILL_DIR>/scripts/run.sh "<TOPIC>" --days 30 > ~/.last30flames/<thread>/<slug>-<YYYY-MM-DD>.md
+```
+
+If the user explicitly names a different path, honor it instead.
+
+**On reuse (a later session):** the user need not recall exact names. If they
+reference saved research even loosely ("load my ai-agents research"), list the
+thread folders under `~/.last30flames/` and match on the thread name; then `Read`
+**every** `.md` file in that folder and synthesize across all of them, keeping
+citations namespaced by source file so numbers from different calls don't clash.
+To reload a single call rather than the whole thread, match one file by its
+`<slug>-<date>` name. If nothing matches, ask where they saved it.
+
+Because each filename is `<slug>-<YYYY-MM-DD>.md`, both topic and save date are
+recoverable from the name alone - no external memory needed. Before synthesizing,
+check each file's date against the `--days` window: if today is more than that many
+days past the saved date, the recency claim no longer holds - warn the user that
+context is stale and offer to re-run fresh.
+
+Reuse-shaped prompts to handle this way (do not re-run the engine):
+
+```
+last30flames load my ai-agents research
+last30flames using my saved ai-agents research, what did I find on local inference?
+```
+
 ## Write the brief
 
 From the numbered sources, write a few tight paragraphs that:
