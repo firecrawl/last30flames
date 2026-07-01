@@ -100,12 +100,18 @@ first:
 - If neither applies, derive `<thread>` from the topic and tell the user the name
   you chose so they can reference it later.
 
-Then create the folder and write the file, and report the exact path afterward:
+Derive `<slug>` by slugifying the topic (lowercase, spaces to hyphens, drop
+punctuation) so the filename tells you what the call was about. Then create the
+folder and write the file, and report the exact path afterward:
 
 ```bash
 mkdir -p ~/.last30flames/<thread>
 bash <SKILL_DIR>/scripts/run.sh "<TOPIC>" --days 30 > ~/.last30flames/<thread>/<slug>-<YYYY-MM-DD>.md
 ```
+
+Because the redirect sends the research context to the file instead of stdout,
+the Bash output shows only stderr progress. If the user also wants the brief this
+session, `Read` the saved file first to get the context, then synthesize as usual.
 
 If the user explicitly names a different path, honor it instead.
 
