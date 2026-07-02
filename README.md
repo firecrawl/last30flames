@@ -4,6 +4,8 @@
 
 **An agent skill that researches what is actually new about any topic in a recent time window.**
 
+No API keys required - works out of the box.
+
 </div>
 
 Works in any agent harness that supports skills.
