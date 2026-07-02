@@ -55,8 +55,7 @@ touches Reddit, X, TikTok, Instagram, or anything behind a login or cookie.
 
 ## Run the engine
 
-This works in any agent harness (Claude Code, OpenClaw, opencode, Codex, Gemini,
-...). You already know the absolute path of this `SKILL.md` because you just read
+This works in any agent harness that supports skills. You already know the absolute path of this `SKILL.md` because you just read
 it; call `scripts/run.sh` next to it. It self-locates, installs deps on first run,
 and takes the topic plus an optional `--days N` window (any number - 7, 30, 365;
 default 30):
@@ -147,4 +146,15 @@ From the numbered sources, write a few tight paragraphs that:
 - **Say plainly where evidence is thin** rather than inventing detail. If HN or
   GitHub returned little, that honesty is part of the answer.
 
-Do not dump a raw "Sources:" list or paste the research context back. Synthesize.
+After the brief, end with a compact **Sources** list so every inline citation is
+clickable. One line per source you actually cited, keeping the same numbers used
+inline, as markdown links:
+
+```
+Sources:
+[1] [Title of the page](https://example.com/article) - example.com
+[3] [Show HN: Something](https://news.ycombinator.com/item?id=123) - news.ycombinator.com
+```
+
+List only cited sources - this is a reference list for the reader, not a dump of
+the research context. Never paste the raw research context back.

@@ -1,7 +1,12 @@
+<div align="center">
+
 # last30flames
 
-A Claude Code / OpenClaw / opencode **skill** that researches what is actually
-new about any topic in a recent time window.
+**An agent skill that researches what is actually new about any topic in a recent time window.**
+
+</div>
+
+Works in any agent harness that supports skills.
 
 > Inspired by [last30days](https://github.com/mvanhorn/last30days-skill) by Matt
 > Van Horn.
@@ -24,21 +29,21 @@ only if you want higher Firecrawl limits and concurrency.
 
 ## Install
 
-Works in any agent harness (Claude Code, OpenClaw, opencode, Codex, Gemini, ...).
+Works in any agent harness that supports skills.
 It only needs the `bun` binary - no API key required.
 
-In Claude Code, via the plugin marketplace:
+**Recommended** - via [skills.sh](https://www.skills.sh/), which installs into
+whichever harness you use:
+
+```
+npx skills add firecrawl/last30flames
+```
+
+In Claude Code you can alternatively install through the plugin marketplace:
 
 ```
 /plugin marketplace add firecrawl/last30flames
 /plugin install last30flames
-```
-
-Via [skills.sh](https://www.skills.sh/) (works across Claude Code, Cursor, Codex,
-and other agents):
-
-```
-npx skills add firecrawl/last30flames
 ```
 
 In any other harness, point it at this repo's `skills/last30flames/SKILL.md` (or copy
