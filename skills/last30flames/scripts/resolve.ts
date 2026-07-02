@@ -10,7 +10,7 @@
 // Sources honour the project's hard rule: only the Firecrawl CLI and the
 // official GitHub API. No social platform lookups.
 
-import { config } from "./config";
+import { githubHeaders } from "./config";
 import { firecrawlArgv } from "./firecrawl";
 
 type WebCandidate = { title: string; url: string; description: string };
@@ -42,12 +42,6 @@ async function resolveWeb(topic: string): Promise<WebCandidate[]> {
     console.error(`[resolve/web] skipped: ${err instanceof Error ? err.message : err}`);
     return [];
   }
-}
-
-function githubHeaders(): Record<string, string> {
-  const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
-  if (config.githubToken) headers.Authorization = `Bearer ${config.githubToken}`;
-  return headers;
 }
 
 async function resolveRepos(topic: string): Promise<RepoCandidate[]> {

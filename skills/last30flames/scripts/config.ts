@@ -10,3 +10,12 @@ export const config = {
   // Optional: only raises GitHub's rate limit. Empty string is fine.
   githubToken: process.env.GITHUB_TOKEN ?? "",
 };
+
+// Headers for every GitHub API call. The Authorization header is added only
+// when GITHUB_TOKEN is present - a token never unlocks features, it just
+// raises the rate limit.
+export function githubHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
+  if (config.githubToken) headers.Authorization = `Bearer ${config.githubToken}`;
+  return headers;
+}

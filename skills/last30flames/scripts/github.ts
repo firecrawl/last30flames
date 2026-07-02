@@ -3,7 +3,7 @@
 // stars and last-push dates openly. We look for repos updated inside the
 // window, sorted by stars, so the brief can point at active code.
 
-import { config } from "./config";
+import { githubHeaders } from "./config";
 import type { Source } from "./types";
 
 // Optional scoping from the pre-research resolution pass: a known GitHub
@@ -41,10 +41,7 @@ export async function searchGitHub(topic: string, days: number, scope: GitHubSco
     url.searchParams.set("sort", "stars");
     url.searchParams.set("per_page", "5");
 
-    // A token is optional - it only raises the rate limit - so we add the
-    // Authorization header only when GITHUB_TOKEN is present.
-    const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
-    if (config.githubToken) headers.Authorization = `Bearer ${config.githubToken}`;
+    const headers = githubHeaders();
 
     // A resolution-pinned repo is fetched directly so it always appears,
     // even when it wouldn't rank in the search results.
