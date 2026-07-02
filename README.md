@@ -103,6 +103,15 @@ matching login or repo. The engine only gathers candidates; the agent does the
 disambiguating. Direct flags: `--query` (repeatable), `--github-user`,
 `--github-repo owner/name`, and `--resolve` for the candidate pass.
 
+### Comparisons
+
+A topic like `cursor vs zed` runs a full gather per side in one pass and groups
+the research context per side, so the brief can compare traction and shipping
+activity directly.
+Auto-splitting on "vs"/"versus" needs no flags; for ambiguous names, `--compare
+"<side>"` declares each side explicitly, and any `--query`/`--github-user`/
+`--github-repo` flags that follow scope to that side.
+
 ### Save and reuse research
 
 Ask the skill to save a run, and it writes the raw research context to a thread
