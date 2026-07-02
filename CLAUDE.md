@@ -9,6 +9,7 @@ This project must only gather data through:
 
 Never add sources that scrape or access **Reddit, X/Twitter, TikTok, Instagram, or any platform behind a login, cookie, or whose Terms of Service such access may violate**.
 If a proposed feature needs such a source, the answer is no - reframe it around Firecrawl search of the open web instead.
+This rule is also stated in `skills/last30flames/SKILL.md` (the runtime copy) - keep the two in sync if either changes.
 
 ## Design principles
 

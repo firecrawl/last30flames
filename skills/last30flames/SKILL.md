@@ -55,8 +55,9 @@ touches Reddit, X, TikTok, Instagram, or anything behind a login or cookie.
 
 ## Run the engine
 
-This works in any agent harness that supports skills. You already know the absolute path of this `SKILL.md` because you just read
-it; call `scripts/run.sh` next to it. It self-locates, installs deps on first run,
+This works in any agent harness that supports skills. You already know the
+absolute path of this `SKILL.md` because you just read it; call `scripts/run.sh`
+next to it. It self-locates, installs deps on first run,
 and takes the topic plus an optional `--days N` window (any number - 7, 30, 365;
 default 30):
 
