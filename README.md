@@ -29,6 +29,19 @@ own model (no LLM key). And it reaches Firecrawl through the Firecrawl CLI, whic
 runs on a keyless free tier - so it works out of the box. Set `FIRECRAWL_API_KEY`
 only if you want higher Firecrawl limits and concurrency.
 
+## Design principles
+
+- **Small enough to read.** The engine is a handful of small TypeScript files
+  with zero runtime dependencies. You can audit everything it runs on your
+  machine in five minutes.
+- **Keyless.** Works out of the box. Keys only raise rate limits, never unlock
+  features.
+- **Only open, permitted sources.** Firecrawl search of the public web, plus the
+  official Hacker News and GitHub APIs. Nothing behind a login, and nothing that
+  violates a platform's terms of service.
+- **No LLM in the engine.** It only gathers and prints sources; your agent does
+  the synthesis. No second model, no extra bill.
+
 ## Install
 
 Works in any agent harness that supports skills.
