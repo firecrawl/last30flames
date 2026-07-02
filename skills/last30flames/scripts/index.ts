@@ -215,8 +215,9 @@ async function gatherSide(side: Side): Promise<Source[]> {
   const sideQueries = side.queries.length ? side.queries : [side.name];
   // Split the web-scrape budget across sides, then across each side's
   // refined queries. The floor of 2 per query means the budget is
-  // approximate: a two-side comparison with the default limit of 5 may
-  // scrape up to 4+ pages, which the keyless tier handles fine.
+  // approximate: a two-side comparison with two refined queries per side and
+  // the default limit of 5 may scrape up to 8 pages (2 per query), which the
+  // keyless tier handles fine.
   const perQueryLimit = Math.max(2, Math.ceil(limit / sides.length / sideQueries.length));
   const tag = comparison ? `[${side.name}] ` : "";
 
@@ -256,9 +257,9 @@ const dedupeKey = (s: Source) => {
     const u = new URL(s.url);
     u.hash = "";
     u.pathname = u.pathname.replace(/\/$/, "");
-    return `${s.entity ?? ""} ${s.origin} ${u}`;
+    return `${s.entity ? `${s.entity} ` : ""}${s.origin} ${u}`;
   } catch {
-    return `${s.entity ?? ""} ${s.origin} ${s.url}`;
+    return `${s.entity ? `${s.entity} ` : ""}${s.origin} ${s.url}`;
   }
 };
 const seen = new Set<string>();
