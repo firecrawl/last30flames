@@ -156,17 +156,6 @@ can pipe it (`> context.md`) or let the agent read it.
 .claude-plugin/        plugin.json + marketplace.json (distribution)
 skills/last30flames/
   SKILL.md             how the agent invokes the engine and writes the brief
-  scripts/             the engine (one file per job, all small)
-    index.ts           CLI entry: parse args, gather in parallel, print context
-    config.ts          read optional env (GITHUB_TOKEN)
-    firecrawl.ts       web layer: full-content search via the Firecrawl CLI (the star)
-    hackernews.ts      HN Algolia search
-    lobsters.ts        Lobste.rs newest-feed search
-    bluesky.ts         Bluesky post search
-    github.ts          GitHub repo search
-    resolve.ts         pre-research topic resolution (candidate identities)
-    format.ts          render the numbered research context
-    htmlify.ts         convert a synthesized brief to self-contained HTML
-    types.ts           shared types
-    run.sh             self-locating launcher (install deps, run engine)
+  scripts/             the engine: one small file per job (entry point, one
+                       module per source, formatting, launcher)
 ```
