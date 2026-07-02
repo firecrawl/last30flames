@@ -27,7 +27,11 @@ export async function searchGitHub(topic: string, days: number, scope: GitHubSco
       .toISOString()
       .slice(0, 10);
     // When resolution pinned a login, scope to that user's repos instead of
-    // keyword-matching the topic - the login already disambiguates.
+    // keyword-matching the topic. The topic is deliberately dropped, not
+    // conjoined: in person mode the topic is the person's name, which rarely
+    // appears in their repos' metadata, so `user:login <name>` would return
+    // almost nothing. Unfiltered user-scoping answers "what has this person
+    // been building lately"; a specific project is pinned via scope.repo.
     const query = scope.user
       ? `user:${scope.user} pushed:>=${since}`
       : `${topic} pushed:>=${since}`;

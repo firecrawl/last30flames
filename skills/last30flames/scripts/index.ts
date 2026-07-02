@@ -71,6 +71,7 @@ for (let i = 0; i < args.length; i++) {
     }
     case "--github-user":
       githubUser = (args[++i] ?? "").trim();
+      if (!githubUser) console.error("Ignoring empty --github-user.");
       break;
     case "--github-repo": {
       githubRepo = (args[++i] ?? "").trim();
@@ -120,8 +121,9 @@ console.error(
     "...",
 );
 
-// Split the web-scrape budget across the refined queries so expansion widens
-// coverage without multiplying full-page scrapes.
+// Split the web-scrape budget across the refined queries. The floor of 2 per
+// query means the budget is approximate: with 4 queries and the default limit
+// of 5 the run may scrape up to 8 pages, which the keyless tier handles fine.
 const perQueryLimit = Math.max(2, Math.ceil(limit / effectiveQueries.length));
 
 // All five sources run at once so the demo feels fast. Search-backed sources
@@ -144,8 +146,24 @@ const settled = await Promise.allSettled([
 const gathered = settled.flatMap((s) => (s.status === "fulfilled" ? s.value : []));
 
 // Refined queries overlap on purpose, so drop duplicate URLs before numbering.
+// Normalise lightly (drop the fragment and a trailing slash) so the same page
+// reached via trivially different URLs still dedupes; keep the query string,
+// which can be meaningful.
+const dedupeKey = (raw: string) => {
+  try {
+    const u = new URL(raw);
+    u.hash = "";
+    u.pathname = u.pathname.replace(/\/$/, "");
+    return u.toString();
+  } catch {
+    return raw;
+  }
+};
 const seen = new Set<string>();
-const sources = gathered.filter((s) => !seen.has(s.url) && (seen.add(s.url), true));
+const sources = gathered.filter((s) => {
+  const key = dedupeKey(s.url);
+  return !seen.has(key) && (seen.add(key), true);
+});
 
 // Print the research context. The agent harness reads this and writes the
 // final brief - this tool deliberately does no LLM synthesis itself.
