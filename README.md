@@ -111,6 +111,8 @@ activity directly.
 Auto-splitting on "vs"/"versus" needs no flags; for ambiguous names, `--compare
 "<side>"` declares each side explicitly, and any `--query`/`--github-user`/
 `--github-repo` flags that follow scope to that side.
+The web-scrape budget is shared across sides, so raise `--limit` when you want
+full per-side depth.
 
 ### Save and reuse research
 
