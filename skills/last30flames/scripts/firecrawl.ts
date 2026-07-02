@@ -12,7 +12,7 @@ import type { Source } from "./types";
 
 // Prefer a globally installed `firecrawl`; otherwise let bun fetch the CLI
 // package on demand. Either way the user installs nothing by hand.
-function firecrawlArgv(): string[] {
+export function firecrawlArgv(): string[] {
   return Bun.which("firecrawl") ? ["firecrawl"] : ["bunx", "firecrawl-cli"];
 }
 
