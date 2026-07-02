@@ -47,7 +47,7 @@ export async function searchBluesky(topic: string, days: number): Promise<Source
         return {
           origin: "bluesky" as const,
           // Posts have no title; use a trimmed first line of the text.
-          title: `@${post.author.handle}: ${text.split("\n")[0].slice(0, 80) || "(no text)"}`,
+          title: `@${post.author.handle}: ${text.split("\n")[0]!.slice(0, 80) || "(no text)"}`,
           url: `https://bsky.app/profile/${post.author.handle}/post/${rkey}`,
           // The honest numbers, surfaced for the synthesis step.
           signal: `${post.likeCount ?? 0} likes, ${post.repostCount ?? 0} reposts, ${post.replyCount ?? 0} replies`,

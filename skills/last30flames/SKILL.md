@@ -163,3 +163,22 @@ Sources:
 
 List only cited sources - this is a reference list for the reader, not a dump of
 the research context. Never paste the raw research context back.
+
+## Shareable HTML brief (optional)
+
+When the user asks for a shareable version of the brief ("make this shareable", "give me an HTML file", "something I can drop in Slack/email/Notion"), emit the synthesis as a self-contained dark-mode HTML file alongside the normal chat response.
+The file has inline CSS, no JavaScript, and no external assets, so it works offline and renders the same everywhere.
+
+First write the brief you synthesized - including its `Sources:` list with the same numbering - as markdown into the thread folder, picking `<thread>` and `<slug>` exactly as in the save flow above:
+
+```bash
+mkdir -p ~/.last30flames/<thread>
+# Write the brief markdown to ~/.last30flames/<thread>/<slug>-<YYYY-MM-DD>-brief.md
+bun <SKILL_DIR>/scripts/htmlify.ts ~/.last30flames/<thread>/<slug>-<YYYY-MM-DD>-brief.md
+```
+
+The converter turns headings, paragraphs, lists, links, and inline `[N]` citations into HTML - each citation becomes a clickable jump to its entry in the Sources list - writes `<slug>-<YYYY-MM-DD>-brief.html` next to the markdown, and prints the output path.
+Report that path to the user.
+If the user names a different output location, pass it with `-o <path>`.
+
+This converts your synthesized brief, not the raw research context - never htmlify the engine's stdout.
