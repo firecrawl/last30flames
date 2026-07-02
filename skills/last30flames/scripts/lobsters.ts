@@ -58,7 +58,10 @@ export async function searchLobsters(topic: string, days: number): Promise<Sourc
       .filter((s) => Date.parse(s.created_at) >= cutoff)
       .map((s) => {
         const haystack = `${s.title} ${s.tags.join(" ")} ${s.description_plain}`.toLowerCase();
-        return { story: s, hits: tokens.filter((t) => haystack.includes(t)).length };
+        // Whole-word match so "rust" doesn't hit "trust" or "frustration".
+        const hit = (t: string) =>
+          new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(haystack);
+        return { story: s, hits: tokens.filter(hit).length };
       })
       .filter((m) => m.hits > 0)
       .sort((a, b) => b.hits - a.hits || b.story.score - a.story.score)
@@ -70,7 +73,7 @@ export async function searchLobsters(topic: string, days: number): Promise<Sourc
       url: story.url || story.comments_url,
       // The honest numbers, surfaced for the synthesis step.
       signal: `${story.score} points, ${story.comment_count} comments`,
-      content: story.title,
+      content: story.description_plain || story.title,
     }));
   } catch (err) {
     // One source failing must never crash the run; degrade to no Lobste.rs results.
