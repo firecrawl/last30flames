@@ -111,6 +111,20 @@ reload it without re-scraping:
 If a saved context is older than its recency window, the skill warns you it's
 stale and offers to re-run fresh.
 
+### Shareable HTML brief
+
+Ask for a shareable version and the skill writes the brief as a self-contained
+dark-mode HTML file (inline CSS, no JavaScript, works offline) that drops
+cleanly into Slack, email, or Notion:
+
+```
+/last30flames AI coding agents, give me a shareable HTML brief
+```
+
+Inline `[N]` citations become clickable jumps to the sources list. The file is
+saved in the same thread folder under `~/.last30flames/` and the skill reports
+the path.
+
 ## Run the engine directly
 
 The engine is a tiny Bun + TypeScript project under `skills/last30flames`:
@@ -136,8 +150,10 @@ skills/last30flames/
     firecrawl.ts       web layer: full-content search via the Firecrawl CLI (the star)
     hackernews.ts      HN Algolia search
     lobsters.ts        Lobste.rs newest-feed search
+    bluesky.ts         Bluesky post search
     github.ts          GitHub repo search
     format.ts          render the numbered research context
+    htmlify.ts         convert a synthesized brief to self-contained HTML
     types.ts           shared types
     run.sh             self-locating launcher (install deps, run engine)
 ```
