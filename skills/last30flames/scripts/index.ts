@@ -101,6 +101,9 @@ if (!topic) {
 // Resolution mode: print candidate identities for the topic and exit. The
 // agent reads this, derives refined subqueries, and re-runs the main gather.
 if (resolveMode) {
+  if (queries.length || githubUser || githubRepo || days !== DEFAULT_DAYS || limit !== DEFAULT_LIMIT) {
+    console.error("--resolve only takes a topic; ignoring the other flags.");
+  }
   console.error(`Resolving "${topic}"...`);
   console.log(await resolveTopic(topic));
   process.exit(0);
