@@ -121,6 +121,10 @@ A topic containing "vs"/"versus" auto-splits, so the simple form just works:
 bash <SKILL_DIR>/scripts/run.sh "cursor vs zed" --days 30
 ```
 
+The web-scrape budget (`--limit`) is shared across sides, so each side of a
+comparison scrapes fewer pages than a dedicated run would; pass a higher
+`--limit` (e.g. `--limit 10` for two sides) when you want full per-side depth.
+
 For sharper sides, pass `--compare` once per side; any `--query`,
 `--github-user`, or `--github-repo` flags that follow a `--compare` scope to
 that side (run `--resolve` per side first if a name is ambiguous):

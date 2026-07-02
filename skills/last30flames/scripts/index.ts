@@ -149,6 +149,15 @@ if (resolveMode) {
 // topic is a single side, which keeps the original one-shot behaviour.
 let sides: Side[];
 if (compares.length >= 2) {
+  // Side-scoped flags only make sense after a --compare; anything given
+  // before the first one has no side to belong to, so say so rather than
+  // silently dropping it.
+  if (topLevel.queries.length || topLevel.githubUser || topLevel.githubRepo) {
+    console.error(
+      "Ignoring --query/--github-* flags given before the first --compare; " +
+        "place them after the --compare side they belong to.",
+    );
+  }
   sides = compares;
 } else {
   if (compares.length === 1) {
@@ -274,7 +283,11 @@ console.log(
   formatBundle({
     topic,
     days,
-    queries: refinedCount ? sides.flatMap((s) => s.queries) : undefined,
+    // In comparison mode, label each refined query with its side so the
+    // header keeps the per-side association the flat list would lose.
+    queries: refinedCount
+      ? sides.flatMap((s) => s.queries.map((q) => (comparison ? `${s.name}: ${q}` : q)))
+      : undefined,
     entities: comparison ? sides.map((s) => s.name) : undefined,
     sources,
   }),
