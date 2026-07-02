@@ -13,12 +13,13 @@ Works in any agent harness that supports skills.
 > Inspired by [last30days](https://github.com/mvanhorn/last30days-skill) by Matt
 > Van Horn.
 
-It gathers four signals **in parallel** and hands them to the agent to write a
+It gathers five signals **in parallel** and hands them to the agent to write a
 short, source-grounded brief:
 
 - **Firecrawl Search** - web results scraped into full-page markdown, not snippets.
 - **Hacker News** (public Algolia API) - points + comment counts.
 - **Lobste.rs** (public JSON feeds) - points + comment counts.
+- **Bluesky** (public AT Protocol API) - likes + reposts + replies.
 - **GitHub** (official API) - stars + recent push activity.
 
 Engagement numbers come only from APIs that publish them openly. The skill never
@@ -32,7 +33,7 @@ touches Reddit, X, TikTok, Instagram, or anything behind a login or cookie.
 - **Keyless.** Works out of the box. Keys only raise rate limits, never unlock
   features.
 - **Only open, permitted sources.** Firecrawl search of the public web, plus the
-  official Hacker News, Lobste.rs, and GitHub APIs. Nothing behind a login, and
+  official Hacker News, Lobste.rs, Bluesky, and GitHub APIs. Nothing behind a login, and
   nothing that violates a platform's terms of service.
 - **No LLM in the engine.** It only gathers and prints sources; your agent does
   the synthesis. No second model, no extra bill.

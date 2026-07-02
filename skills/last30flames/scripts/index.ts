@@ -1,6 +1,6 @@
 // index.ts
 // CLI entry point. Reads the topic (and an optional --days window), kicks off
-// all four data sources in parallel, hands the bundle to Claude, and prints
+// all five data sources in parallel, hands the bundle to Claude, and prints
 // the brief. Progress lines are printed as we go so the demo narrates itself.
 //
 //   bun run src/index.ts "AI coding agents"
@@ -9,6 +9,7 @@
 import { searchWeb } from "./firecrawl";
 import { searchHackerNews } from "./hackernews";
 import { searchLobsters } from "./lobsters";
+import { searchBluesky } from "./bluesky";
 import { searchGitHub } from "./github";
 import { formatBundle } from "./format";
 
@@ -64,19 +65,20 @@ if (!topic) {
 // agent (or a pipe) can capture cleanly.
 console.error(`Researching "${topic}" over the last ${days} days...`);
 
-// All four sources run at once so the demo feels fast. Each logs when it lands.
+// All five sources run at once so the demo feels fast. Each logs when it lands.
 // Each source already catches its own errors and returns []; allSettled is a
 // belt-and-suspenders backstop so one rejection can never sink the whole run.
 const settled = await Promise.allSettled([
   searchWeb(topic, days, limit).then((r) => (console.error("✓ Searched the web"), r)),
   searchHackerNews(topic, days).then((r) => (console.error("✓ Checked Hacker News"), r)),
   searchLobsters(topic, days).then((r) => (console.error("✓ Checked Lobste.rs"), r)),
+  searchBluesky(topic, days).then((r) => (console.error("✓ Checked Bluesky"), r)),
   searchGitHub(topic, days).then((r) => (console.error("✓ Checked GitHub"), r)),
 ]);
-const [web, hn, lobsters, github] = settled.map((s) =>
+const [web, hn, lobsters, bluesky, github] = settled.map((s) =>
   s.status === "fulfilled" ? s.value : [],
-) as [Awaited<ReturnType<typeof searchWeb>>, Awaited<ReturnType<typeof searchHackerNews>>, Awaited<ReturnType<typeof searchLobsters>>, Awaited<ReturnType<typeof searchGitHub>>];
+) as [Awaited<ReturnType<typeof searchWeb>>, Awaited<ReturnType<typeof searchHackerNews>>, Awaited<ReturnType<typeof searchLobsters>>, Awaited<ReturnType<typeof searchBluesky>>, Awaited<ReturnType<typeof searchGitHub>>];
 
 // Print the research context. The agent harness reads this and writes the
 // final brief - this tool deliberately does no LLM synthesis itself.
-console.log(formatBundle({ topic, days, sources: [...web, ...hn, ...lobsters, ...github] }));
+console.log(formatBundle({ topic, days, sources: [...web, ...hn, ...lobsters, ...bluesky, ...github] }));

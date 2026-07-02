@@ -23,6 +23,7 @@ metadata:
     - web-search
     - hackernews
     - lobsters
+    - bluesky
     - github
     - citations
 ---
@@ -45,11 +46,12 @@ run, with nothing to reinstall.
 
 ## How it works
 
-Four sources run in parallel:
+Five sources run in parallel:
 
 - **Firecrawl Search** - web results scraped into full-page markdown, not snippets.
 - **Hacker News** (public Algolia API) - points + comment counts.
 - **Lobste.rs** (public JSON feeds) - points + comment counts.
+- **Bluesky** (public AT Protocol API) - likes + reposts + replies.
 - **GitHub** (official API) - stars + recent push activity.
 
 Engagement numbers come only from APIs that publish them openly. The skill never

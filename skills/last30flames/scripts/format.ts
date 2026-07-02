@@ -9,7 +9,7 @@ import type { ResearchBundle } from "./types";
 
 export function formatBundle(bundle: ResearchBundle): string {
   const header = `# Research context: "${bundle.topic}" (last ${bundle.days} days)\n\n` +
-    `${bundle.sources.length} sources gathered from the web, Hacker News, Lobste.rs, and GitHub.\n` +
+    `${bundle.sources.length} sources gathered from the web, Hacker News, Lobste.rs, Bluesky, and GitHub.\n` +
     `Each source is numbered so the brief can cite it inline like [1], [3].\n`;
 
   // Number every source and carry its engagement "signal" (HN points,
