@@ -22,6 +22,7 @@ metadata:
     - firecrawl
     - web-search
     - hackernews
+    - lobsters
     - github
     - citations
 ---
@@ -44,10 +45,11 @@ run, with nothing to reinstall.
 
 ## How it works
 
-Three sources run in parallel:
+Four sources run in parallel:
 
 - **Firecrawl Search** - web results scraped into full-page markdown, not snippets.
 - **Hacker News** (public Algolia API) - points + comment counts.
+- **Lobste.rs** (public JSON feeds) - points + comment counts.
 - **GitHub** (official API) - stars + recent push activity.
 
 Engagement numbers come only from APIs that publish them openly. The skill never

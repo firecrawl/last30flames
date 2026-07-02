@@ -13,11 +13,12 @@ Works in any agent harness that supports skills.
 > Inspired by [last30days](https://github.com/mvanhorn/last30days-skill) by Matt
 > Van Horn.
 
-It gathers three signals **in parallel** and hands them to the agent to write a
+It gathers four signals **in parallel** and hands them to the agent to write a
 short, source-grounded brief:
 
 - **Firecrawl Search** - web results scraped into full-page markdown, not snippets.
 - **Hacker News** (public Algolia API) - points + comment counts.
+- **Lobste.rs** (public JSON feeds) - points + comment counts.
 - **GitHub** (official API) - stars + recent push activity.
 
 Engagement numbers come only from APIs that publish them openly. The skill never
@@ -31,8 +32,8 @@ touches Reddit, X, TikTok, Instagram, or anything behind a login or cookie.
 - **Keyless.** Works out of the box. Keys only raise rate limits, never unlock
   features.
 - **Only open, permitted sources.** Firecrawl search of the public web, plus the
-  official Hacker News and GitHub APIs. Nothing behind a login, and nothing that
-  violates a platform's terms of service.
+  official Hacker News, Lobste.rs, and GitHub APIs. Nothing behind a login, and
+  nothing that violates a platform's terms of service.
 - **No LLM in the engine.** It only gathers and prints sources; your agent does
   the synthesis. No second model, no extra bill.
 
@@ -133,6 +134,7 @@ skills/last30flames/
     config.ts          read optional env (GITHUB_TOKEN)
     firecrawl.ts       web layer: full-content search via the Firecrawl CLI (the star)
     hackernews.ts      HN Algolia search
+    lobsters.ts        Lobste.rs newest-feed search
     github.ts          GitHub repo search
     format.ts          render the numbered research context
     types.ts           shared types

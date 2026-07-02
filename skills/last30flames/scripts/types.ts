@@ -4,10 +4,11 @@
 // "gather" steps into the "synthesize" step without guessing.
 
 // One piece of evidence we hand to Claude. Everything we collect
-// (web pages, Hacker News stories, GitHub repos) is flattened into
-// this same shape so the synthesis prompt only has to understand one thing.
+// (web pages, Hacker News stories, Lobste.rs stories, GitHub repos) is
+// flattened into this same shape so the synthesis prompt only has to
+// understand one thing.
 export type Source = {
-  origin: "web" | "hackernews" | "github"; // where it came from
+  origin: "web" | "hackernews" | "lobsters" | "github"; // where it came from
   title: string;
   url: string;
   // Free-text engagement / freshness signal, already humanised,
