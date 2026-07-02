@@ -18,6 +18,9 @@ export type Source = {
   // The actual content we feed the model. For web results this is the
   // full page markdown from Firecrawl; for HN/GitHub it's a short blurb.
   content: string;
+  // Which side of a comparison this source belongs to ("Cursor" in a
+  // "Cursor vs Zed" run). Absent on normal single-topic runs.
+  entity?: string;
 };
 
 // Everything the sources found, bundled for synthesis.
@@ -27,5 +30,8 @@ export type ResearchBundle = {
   // Refined subqueries from the pre-research resolution pass, when the agent
   // ran one. Absent means the raw topic was searched directly.
   queries?: string[];
+  // Comparison-mode side names, in gather order. Present only when the run
+  // compared two or more entities; formatting then groups sources per side.
+  entities?: string[];
   sources: Source[];
 };

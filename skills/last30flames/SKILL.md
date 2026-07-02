@@ -109,6 +109,33 @@ given login/repo. All flags are optional - a clear, specific topic can skip
 resolution entirely and run one-shot as before. The resolution pass never
 decides anything itself; you do.
 
+## Comparison topics ("X vs Y")
+
+When the topic pits two or three things against each other ("cursor vs zed",
+"bun versus deno"), the engine runs a full gather per side in one pass and
+groups the research context per side, with continuous citation numbering.
+
+A topic containing "vs"/"versus" auto-splits, so the simple form just works:
+
+```bash
+bash <SKILL_DIR>/scripts/run.sh "cursor vs zed" --days 30
+```
+
+For sharper sides, pass `--compare` once per side; any `--query`,
+`--github-user`, or `--github-repo` flags that follow a `--compare` scope to
+that side (run `--resolve` per side first if a name is ambiguous):
+
+```bash
+bash <SKILL_DIR>/scripts/run.sh "cursor vs zed" \
+  --compare "Cursor" --query "Cursor AI editor" --github-repo getcursor/cursor \
+  --compare "Zed" --query "Zed editor" --github-repo zed-industries/zed
+```
+
+Synthesize a side-by-side brief from the grouped context: what moved for each
+side in the window, then a direct comparison (traction via the engagement
+numbers, notable shipping activity, best-for). Cite both sides inline as
+usual; the numbering never collides because it is continuous across sides.
+
 ## Save & reuse the context (optional)
 
 By default, do not write any files - just synthesize the brief. Only save when
