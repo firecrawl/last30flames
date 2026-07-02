@@ -140,15 +140,15 @@ const html = `<!doctype html>
   body {
     margin: 0;
     padding: 2.5rem 1.25rem 4rem;
-    background: #14161a;
-    color: #d6d9de;
+    background: #141414;
+    color: #dbdbdb;
     font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   main { max-width: 42rem; margin: 0 auto; }
-  h1, h2, h3, h4 { color: #f2f4f7; line-height: 1.3; }
+  h1, h2, h3, h4 { color: #f9f9f9; line-height: 1.3; }
   h1 { font-size: 1.6rem; margin-bottom: 0.5rem; }
   h2 { font-size: 1.2rem; margin-top: 2rem; }
-  a { color: #f97316; text-decoration: none; }
+  a { color: #fa5d19; text-decoration: none; }
   a:hover { text-decoration: underline; }
   a.cite {
     font-size: 0.8em;
@@ -157,20 +157,20 @@ const html = `<!doctype html>
     padding: 0 0.1em;
   }
   code {
-    background: #22252b;
+    background: #262626;
     border-radius: 4px;
     padding: 0.1em 0.35em;
     font-size: 0.9em;
   }
-  hr { border: 0; border-top: 1px solid #2b2f36; margin: 2rem 0; }
+  hr { border: 0; border-top: 1px solid #2a2a2a; margin: 2rem 0; }
   ol.sources {
     padding-left: 1.5rem;
-    border-top: 1px solid #2b2f36;
+    border-top: 1px solid #2a2a2a;
     margin-top: 2rem;
     padding-top: 1rem;
   }
   ol.sources li { margin: 0.35rem 0; overflow-wrap: anywhere; }
-  li:target { color: #f2f4f7; }
+  li:target { color: #f9f9f9; }
 </style>
 </head>
 <body>
