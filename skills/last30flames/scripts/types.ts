@@ -24,5 +24,8 @@ export type Source = {
 export type ResearchBundle = {
   topic: string;
   days: number; // the "last N days" window the user asked for
+  // Refined subqueries from the pre-research resolution pass, when the agent
+  // ran one. Absent means the raw topic was searched directly.
+  queries?: string[];
   sources: Source[];
 };

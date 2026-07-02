@@ -77,6 +77,38 @@ both. The only requirement is the `bun` binary; no API key is needed (set
 Progress prints to stderr; the numbered research context prints to stdout. Read
 the stdout - that is your evidence.
 
+## Resolve ambiguous topics first (recommended)
+
+If the topic could point at more than one thing - a person's name, a product
+that shares a name with something common ("Apple", "Cursor"), a bare handle -
+run a cheap resolution pass before the main gather:
+
+```bash
+bash <SKILL_DIR>/scripts/run.sh --resolve "<TOPIC>"
+```
+
+It prints candidate identities (web titles + descriptions, GitHub repo and user
+candidates) without scraping any pages. Read them and decide:
+
+- **2-4 refined subqueries** that pin down the intended entity (e.g. for
+  "Cursor" the AI editor: `"Cursor AI editor"`, `"Cursor IDE agent"`).
+- If the topic is a **person or project**, the matching **GitHub login** and/or
+  **owner/name repo**.
+
+Then run the main gather with those, passing `--query` once per subquery:
+
+```bash
+bash <SKILL_DIR>/scripts/run.sh "<TOPIC>" --days 30 \
+  --query "<subquery 1>" --query "<subquery 2>" \
+  --github-user <login> --github-repo <owner/name>
+```
+
+The engine searches the web, Hacker News, Lobste.rs, and Bluesky with each
+subquery (up to 4, deduplicating overlapping results), and scopes GitHub to the
+given login/repo. All flags are optional - a clear, specific topic can skip
+resolution entirely and run one-shot as before. The resolution pass never
+decides anything itself; you do.
+
 ## Save & reuse the context (optional)
 
 By default, do not write any files - just synthesize the brief. Only save when

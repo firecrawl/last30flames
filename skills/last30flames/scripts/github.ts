@@ -6,13 +6,31 @@
 import { config } from "./config";
 import type { Source } from "./types";
 
-export async function searchGitHub(topic: string, days: number): Promise<Source[]> {
+// Optional scoping from the pre-research resolution pass: a known GitHub
+// login and/or a known owner/name repo for the topic.
+export type GitHubScope = { user?: string; repo?: string };
+
+function repoToSource(repo: any): Source {
+  return {
+    origin: "github" as const,
+    title: repo.full_name,
+    url: repo.html_url,
+    signal: `${repo.stargazers_count} stars, pushed ${repo.pushed_at?.slice(0, 10)}`,
+    content: repo.description ?? "",
+  };
+}
+
+export async function searchGitHub(topic: string, days: number, scope: GitHubScope = {}): Promise<Source[]> {
   try {
     // "pushed:>=YYYY-MM-DD" keeps us to repos that actually moved recently.
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
       .toISOString()
       .slice(0, 10);
-    const query = `${topic} pushed:>=${since}`;
+    // When resolution pinned a login, scope to that user's repos instead of
+    // keyword-matching the topic - the login already disambiguates.
+    const query = scope.user
+      ? `user:${scope.user} pushed:>=${since}`
+      : `${topic} pushed:>=${since}`;
 
     const url = new URL("https://api.github.com/search/repositories");
     url.searchParams.set("q", query);
@@ -24,16 +42,20 @@ export async function searchGitHub(topic: string, days: number): Promise<Source[
     const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
     if (config.githubToken) headers.Authorization = `Bearer ${config.githubToken}`;
 
+    // A resolution-pinned repo is fetched directly so it always appears,
+    // even when it wouldn't rank in the search results.
+    const pinned: Source[] = [];
+    if (scope.repo) {
+      const repoRes = await fetch(`https://api.github.com/repos/${scope.repo}`, { headers });
+      if (repoRes.ok) pinned.push(repoToSource(await repoRes.json()));
+      else console.error(`[github] pinned repo ${scope.repo} not found (HTTP ${repoRes.status})`);
+    }
+
     const res = await fetch(url, { headers });
     const data = (await res.json()) as any;
 
-    return (data.items ?? []).map((repo: any) => ({
-      origin: "github" as const,
-      title: repo.full_name,
-      url: repo.html_url,
-      signal: `${repo.stargazers_count} stars, pushed ${repo.pushed_at?.slice(0, 10)}`,
-      content: repo.description ?? "",
-    }));
+    const searched: Source[] = (data.items ?? []).map(repoToSource);
+    return [...pinned, ...searched.filter((s) => !pinned.some((p) => p.url === s.url))];
   } catch (err) {
     // One source failing must never crash the run; degrade to no GitHub results.
     console.error(`[github] skipped: ${err instanceof Error ? err.message : err}`);

@@ -1,6 +1,8 @@
 <div align="center">
 
-# last30flames
+# 🔥
+
+# /last30flames
 
 **An agent skill that researches what is actually new about any topic in a recent time window.**
 
@@ -91,6 +93,16 @@ to the keyless free tier. Same binary, same skill - only the rate limits change.
 
 `--days` sets the recency window (default 30). Any number works - 7, 30, 365.
 
+### Ambiguous topics
+
+For topics that could mean more than one thing (a person's name, "Apple",
+"Cursor"), the skill first runs a cheap resolution pass - a snippet-only
+Firecrawl search plus GitHub user/repo candidate lookups - then re-searches
+with 2-4 refined subqueries and, for people and projects, scopes GitHub to the
+matching login or repo. The engine only gathers candidates; the agent does the
+disambiguating. Direct flags: `--query` (repeatable), `--github-user`,
+`--github-repo owner/name`, and `--resolve` for the candidate pass.
+
 ### Save and reuse research
 
 Ask the skill to save a run, and it writes the raw research context to a thread
@@ -152,6 +164,7 @@ skills/last30flames/
     lobsters.ts        Lobste.rs newest-feed search
     bluesky.ts         Bluesky post search
     github.ts          GitHub repo search
+    resolve.ts         pre-research topic resolution (candidate identities)
     format.ts          render the numbered research context
     htmlify.ts         convert a synthesized brief to self-contained HTML
     types.ts           shared types
