@@ -23,13 +23,17 @@ type LobstersStory = {
   tags: string[];
 };
 
-export async function searchLobsters(topic: string, days: number): Promise<Source[]> {
+export async function searchLobsters(queries: string[], days: number): Promise<Source[]> {
   try {
     const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
 
-    // Topic tokens worth matching on; drop tiny glue words like "of", "vs".
-    const tokens = topic.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3);
-    if (tokens.length === 0) return [];
+    // Tokens worth matching on, kept separate per query so one query's common
+    // word ("editor") can't match on behalf of another. Drop tiny glue words
+    // like "of", "vs".
+    const tokenSets = queries
+      .map((q) => q.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3))
+      .filter((tokens) => tokens.length > 0);
+    if (tokenSets.length === 0) return [];
 
     const stories: LobstersStory[] = [];
     let pastCutoff = false;
@@ -52,22 +56,30 @@ export async function searchLobsters(topic: string, days: number): Promise<Sourc
       }
     }
 
-    // Keep stories in the window that mention the topic, preferring stories
-    // that match more of its words, then higher scores.
-    const matched = stories
-      .filter((s) => Date.parse(s.created_at) >= cutoff)
-      .map((s) => {
-        const haystack = `${s.title} ${s.tags.join(" ")} ${s.description_plain}`.toLowerCase();
-        // Whole-word match so "rust" doesn't hit "trust" or "frustration".
-        const hit = (t: string) =>
-          new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(haystack);
-        return { story: s, hits: tokens.filter(hit).length };
-      })
-      .filter((m) => m.hits > 0)
-      .sort((a, b) => b.hits - a.hits || b.story.score - a.story.score)
-      .slice(0, 5);
+    // Keep stories in the window that mention a query, preferring stories
+    // that match more of that query's words, then higher scores. Match and
+    // rank per query (top 5 each, like the other sources) rather than over
+    // the union of all queries' tokens, so a common word from one query
+    // can't flood the picks; merge by story id afterwards.
+    const inWindow = stories.filter((s) => Date.parse(s.created_at) >= cutoff);
+    // Whole-word match so "rust" doesn't hit "trust" or "frustration".
+    const hit = (haystack: string, t: string) =>
+      new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(haystack);
 
-    return matched.map(({ story }) => ({
+    const picked = new Map<string, LobstersStory>();
+    for (const tokens of tokenSets) {
+      const matched = inWindow
+        .map((s) => {
+          const haystack = `${s.title} ${s.tags.join(" ")} ${s.description_plain}`.toLowerCase();
+          return { story: s, hits: tokens.filter((t) => hit(haystack, t)).length };
+        })
+        .filter((m) => m.hits > 0)
+        .sort((a, b) => b.hits - a.hits || b.story.score - a.story.score)
+        .slice(0, 5);
+      for (const { story } of matched) picked.set(story.short_id, story);
+    }
+
+    return [...picked.values()].map((story) => ({
       origin: "lobsters" as const,
       title: story.title,
       url: story.url || story.comments_url,
