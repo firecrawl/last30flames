@@ -23,12 +23,6 @@ short, source-grounded brief:
 Engagement numbers come only from APIs that publish them openly. The skill never
 touches Reddit, X, TikTok, Instagram, or anything behind a login or cookie.
 
-**No keys required at all.** The engine only gathers and prints a numbered
-research context; the agent harness running the skill writes the brief with its
-own model (no LLM key). And it reaches Firecrawl through the Firecrawl CLI, which
-runs on a keyless free tier - so it works out of the box. Set `FIRECRAWL_API_KEY`
-only if you want higher Firecrawl limits and concurrency.
-
 ## Design principles
 
 - **Small enough to read.** The engine is a handful of small TypeScript files
