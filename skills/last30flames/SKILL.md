@@ -92,6 +92,8 @@ candidates) without scraping any pages. Read them and decide:
 
 - **2-4 refined subqueries** that pin down the intended entity (e.g. for
   "Cursor" the AI editor: `"Cursor AI editor"`, `"Cursor IDE agent"`).
+  Each subquery multiplies the Firecrawl search/scrape work, so runtime scales
+  with query count - use the fewest that pin down the entity, usually 2.
 - If the topic is a **person or project**, the matching **GitHub login** and/or
   **owner/name repo**.
 
