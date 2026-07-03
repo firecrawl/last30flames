@@ -166,7 +166,9 @@ if (compares.length >= 2) {
     topLevel.githubUser ||= compares[0]!.githubUser;
     topLevel.githubRepo ||= compares[0]!.githubRepo;
   }
-  const split = topic.split(/\s+(?:vs\.?|versus)\s+/i).map((s) => s.trim()).filter(Boolean);
+  // All-caps "VS" is excluded so product names like "VS Code" don't trigger a
+  // bogus comparison; use explicit --compare to compare things containing "VS".
+  const split = topic.split(/\s+(?:[Vv]s\.?|[Vv]ersus)\s+/).map((s) => s.trim()).filter(Boolean);
   if (split.length >= 2) {
     // Auto-split comparison. Top-level scoping flags are ambiguous here (which
     // side would they belong to?), so they are dropped with a pointer to the
