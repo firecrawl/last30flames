@@ -2,18 +2,70 @@
 // Turns the raw research bundle into one clean markdown "research context".
 // This tool does NOT call an LLM itself - it runs inside an agent harness
 // (OpenClaw, opencode, Claude Code, ...) and the harness's own model reads
-// this output and writes the final brief. That keeps the tool key-light:
+// the output and writes the final brief. That keeps the tool key-light:
 // no Anthropic key, no per-user LLM cost, just web data + honest signals.
 
-import type { ResearchBundle } from "./types";
+import type { ResearchBundle, Source } from "./types";
+
+// One rendered entry: a primary source plus any other origins that found the
+// same URL, each keeping its own engagement signal.
+export type Cluster = { primary: Source; also: Source[] };
+
+// The gather step deliberately keeps a URL that appears in several sources
+// (index.ts dedupes within an origin only), because each origin carries
+// different information: web brings full content, HN/Lobste.rs bring
+// engagement numbers. Merging them is this step's job, so the same story
+// isn't numbered twice and the synthesizer sees all its engagement signals
+// on one entry. Same light normalisation as the gather-side dedupe, plus
+// protocol/www so trivially different spellings of one URL still meet.
+// Clusters never cross comparison sides - the same URL surfacing for both
+// sides is itself signal and stays visible per side.
+const clusterKey = (s: Source) => {
+  try {
+    const u = new URL(s.url);
+    u.hash = "";
+    u.pathname = u.pathname.replace(/\/$/, "");
+    u.protocol = "https:";
+    u.hostname = u.hostname.replace(/^www\./, "");
+    return `${s.entity ?? ""}|${u}`;
+  } catch {
+    return `${s.entity ?? ""}|${s.url}`;
+  }
+};
+
+export function clusterSources(sources: Source[]): Cluster[] {
+  const byKey = new Map<string, Cluster>();
+  for (const s of sources) {
+    const key = clusterKey(s);
+    const c = byKey.get(key);
+    if (!c) {
+      byKey.set(key, { primary: s, also: [] });
+      continue;
+    }
+    // The richest content wins the body (a scraped web page beats an HN
+    // title blurb); the other member still contributes its signal line.
+    if (s.content.length > c.primary.content.length) {
+      c.also.push(c.primary);
+      c.primary = s;
+    } else {
+      c.also.push(s);
+    }
+  }
+  return [...byKey.values()];
+}
 
 export function formatBundle(bundle: ResearchBundle): string {
   const comparing = bundle.entities?.length ? bundle.entities : undefined;
+  const clusters = clusterSources(bundle.sources);
+  const merged = clusters.some((c) => c.also.length > 0);
   const header =
     (comparing
       ? `# Research context: ${comparing.map((e) => `"${e}"`).join(" vs ")} (last ${bundle.days} days)\n\n`
       : `# Research context: "${bundle.topic}" (last ${bundle.days} days)\n\n`) +
-    `${bundle.sources.length} sources gathered from the web, Hacker News, Lobste.rs, Bluesky, and GitHub.\n` +
+    `${bundle.sources.length} sources gathered from web, Hacker News, Lobste.rs, Bluesky, GitHub.\n` +
+    (merged
+      ? `A story found by several sources is merged into one numbered entry carrying every source's engagement signal.\n`
+      : "") +
     (bundle.queries?.length
       ? `Searched via refined queries: ${bundle.queries.map((q) => `"${q}"`).join(", ")}.\n`
       : "") +
@@ -22,27 +74,37 @@ export function formatBundle(bundle: ResearchBundle): string {
       : "") +
     `Each source is numbered so the brief can cite it inline like [1], [3].\n`;
 
-  // Number every source and carry its engagement "signal" (HN points,
+  // Number every entry and carry its engagement "signal" (HN points,
   // GitHub stars) alongside the content so the model can weigh what matters.
-  const block = (s: ResearchBundle["sources"][number], n: number) => {
-    const signal = s.signal ? ` — ${s.signal}` : "";
-    return `## [${n}] ${s.origin}: ${s.title}${signal}\n${s.url}\n\n${s.content}`;
+  // A merged entry lists each origin's signal prefixed with its origin.
+  const block = (c: Cluster, n: number) => {
+    const members = [c.primary, ...c.also];
+    const origins = members.map((s) => s.origin).join(" + ");
+    const withSignal = members.filter((s) => s.signal);
+    const signal = withSignal.length
+      ? ` — ${withSignal
+          .map((s) => (members.length > 1 ? `${s.origin}: ${s.signal}` : s.signal))
+          .join("; ")}`
+      : "";
+    return `## [${n}] ${origins}: ${c.primary.title}${signal}\n${c.primary.url}\n\n${c.primary.content}`;
   };
 
   if (!comparing) {
-    return [header, ...bundle.sources.map((s, i) => block(s, i + 1))].join("\n\n---\n\n");
+    return [header, ...clusters.map((c, i) => block(c, i + 1))].join("\n\n---\n\n");
   }
 
   // Comparison mode: one section per side, numbering continuous across the
   // whole context. Sources arrive grouped by side already; iterating the
   // declared side order keeps the output stable even if that changes.
+  // Every member of a cluster shares one entity (it's part of the key), so
+  // filtering on the primary's entity keeps whole clusters together.
   const parts: string[] = [header];
   let n = 0;
   for (const entity of comparing) {
     parts.push(`# Side: ${entity}`);
-    const sideSources = bundle.sources.filter((s) => s.entity === entity);
-    if (!sideSources.length) parts.push(`(no sources found for "${entity}" in the window)`);
-    for (const s of sideSources) parts.push(block(s, ++n));
+    const sideClusters = clusters.filter((c) => c.primary.entity === entity);
+    if (!sideClusters.length) parts.push(`(no sources found for "${entity}" in the window)`);
+    for (const c of sideClusters) parts.push(block(c, ++n));
   }
   return parts.join("\n\n---\n\n");
 }
