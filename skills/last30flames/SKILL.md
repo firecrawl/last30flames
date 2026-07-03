@@ -115,7 +115,9 @@ When the topic pits two or three things against each other ("cursor vs zed",
 "bun versus deno"), the engine runs a full gather per side in one pass and
 groups the research context per side, with continuous citation numbering.
 
-A topic containing "vs"/"versus" auto-splits, so the simple form just works:
+A topic containing "vs"/"versus" auto-splits, so the simple form just works
+(all-caps "VS" is ignored, so topics like "best VS Code extensions" stay a
+single side; use `--compare` to compare things whose names contain "VS"):
 
 ```bash
 bash <SKILL_DIR>/scripts/run.sh "cursor vs zed" --days 30
