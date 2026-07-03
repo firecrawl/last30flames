@@ -117,9 +117,8 @@ When the topic pits two or three things against each other ("cursor vs zed",
 "bun versus deno"), the engine runs a full gather per side in one pass and
 groups the research context per side, with continuous citation numbering.
 
-A topic containing "vs"/"versus" auto-splits, so the simple form just works
-(all-caps "VS" is ignored, so topics like "best VS Code extensions" stay a
-single side; use `--compare` to compare things whose names contain "VS"):
+A topic containing "vs"/"versus" in any capitalization auto-splits, so the simple form just works.
+The one carve-out is all-caps "VS", so topics like "best VS Code extensions" stay a single side; use `--compare` to compare things whose names contain "VS":
 
 ```bash
 bash <SKILL_DIR>/scripts/run.sh "cursor vs zed" --days 30
@@ -139,10 +138,8 @@ bash <SKILL_DIR>/scripts/run.sh "cursor vs zed" \
   --compare "Zed" --query "Zed editor" --github-repo zed-industries/zed
 ```
 
-Synthesize a side-by-side brief from the grouped context: what moved for each
-side in the window, then a direct comparison (traction via the engagement
-numbers, notable shipping activity, best-for). Cite both sides inline as
-usual; the numbering never collides because it is continuous across sides.
+Synthesize a side-by-side brief from the grouped context: what moved for each side in the window, then a direct comparison (traction via the engagement numbers, notable shipping activity, best-for).
+Cite both sides inline as usual; the numbering never collides because it is continuous across sides.
 
 ## Save & reuse the context (optional)
 
