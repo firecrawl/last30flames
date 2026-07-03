@@ -23,6 +23,7 @@
 //     --compare "Cursor" --query "Cursor AI editor" --github-repo getcursor/cursor \
 //     --compare "Zed"    --query "Zed editor"       --github-repo zed-industries/zed
 
+import { normalizeUrl } from "./url";
 import { searchWeb } from "./firecrawl";
 import { searchHackerNews } from "./hackernews";
 import { searchLobsters } from "./lobsters";
@@ -243,16 +244,8 @@ const gathered = (await Promise.all(sides.map(gatherSide))).flat();
 // itself signal. Normalise lightly (drop the fragment and a trailing slash)
 // so trivially different URLs still collapse; keep the query string, which
 // can be meaningful.
-const dedupeKey = (s: Source) => {
-  try {
-    const u = new URL(s.url);
-    u.hash = "";
-    u.pathname = u.pathname.replace(/\/$/, "");
-    return `${s.entity ? `${s.entity} ` : ""}${s.origin} ${u}`;
-  } catch {
-    return `${s.entity ? `${s.entity} ` : ""}${s.origin} ${s.url}`;
-  }
-};
+const dedupeKey = (s: Source) =>
+  `${s.entity ? `${s.entity} ` : ""}${s.origin} ${normalizeUrl(s.url)}`;
 const seen = new Set<string>();
 const sources = gathered.filter((s) => {
   const key = dedupeKey(s);

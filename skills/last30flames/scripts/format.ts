@@ -6,6 +6,7 @@
 // no Anthropic key, no per-user LLM cost, just web data + honest signals.
 
 import type { ResearchBundle, Source } from "./types";
+import { normalizeUrl } from "./url";
 
 // One rendered entry: a primary source plus any other origins that found the
 // same URL, each keeping its own engagement signal.
@@ -16,22 +17,14 @@ export type Cluster = { primary: Source; also: Source[] };
 // different information: web brings full content, HN/Lobste.rs bring
 // engagement numbers. Merging them is this step's job, so the same story
 // isn't numbered twice and the synthesizer sees all its engagement signals
-// on one entry. Same light normalisation as the gather-side dedupe, plus
-// protocol/www so trivially different spellings of one URL still meet.
+// on one entry. Shares the gather-side dedupe's normaliser (url.ts), plus
+// protocol/www folding so trivially different spellings of one URL still
+// meet - a format-only extra since gather-side dedup keys already scope by
+// origin and don't need it.
 // Clusters never cross comparison sides - the same URL surfacing for both
 // sides is itself signal and stays visible per side.
-const clusterKey = (s: Source) => {
-  try {
-    const u = new URL(s.url);
-    u.hash = "";
-    u.pathname = u.pathname.replace(/\/$/, "");
-    u.protocol = "https:";
-    u.hostname = u.hostname.replace(/^www\./, "");
-    return `${s.entity ?? ""}|${u}`;
-  } catch {
-    return `${s.entity ?? ""}|${s.url}`;
-  }
-};
+const clusterKey = (s: Source) =>
+  `${s.entity ?? ""}|${normalizeUrl(s.url, { foldOrigin: true })}`;
 
 export function clusterSources(sources: Source[]): Cluster[] {
   const byKey = new Map<string, Cluster>();
@@ -62,10 +55,9 @@ export function formatBundle(bundle: ResearchBundle): string {
     (comparing
       ? `# Research context: ${comparing.map((e) => `"${e}"`).join(" vs ")} (last ${bundle.days} days)\n\n`
       : `# Research context: "${bundle.topic}" (last ${bundle.days} days)\n\n`) +
-    `${bundle.sources.length} sources gathered from web, Hacker News, Lobste.rs, Bluesky, GitHub.\n` +
     (merged
-      ? `A story found by several sources is merged into one numbered entry carrying every source's engagement signal.\n`
-      : "") +
+      ? `${bundle.sources.length} sources gathered from web, Hacker News, Lobste.rs, Bluesky, GitHub, merged into ${clusters.length} numbered ${clusters.length === 1 ? "entry" : "entries"} where the same story appeared in several sources.\n`
+      : `${bundle.sources.length} sources gathered from web, Hacker News, Lobste.rs, Bluesky, GitHub.\n`) +
     (bundle.queries?.length
       ? `Searched via refined queries: ${bundle.queries.map((q) => `"${q}"`).join(", ")}.\n`
       : "") +
@@ -79,7 +71,7 @@ export function formatBundle(bundle: ResearchBundle): string {
   // A merged entry lists each origin's signal prefixed with its origin.
   const block = (c: Cluster, n: number) => {
     const members = [c.primary, ...c.also];
-    const origins = members.map((s) => s.origin).join(" + ");
+    const origins = [...new Set(members.map((s) => s.origin))].join(" + ");
     const withSignal = members.filter((s) => s.signal);
     const signal = withSignal.length
       ? ` — ${withSignal
