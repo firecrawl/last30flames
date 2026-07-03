@@ -30,6 +30,7 @@ import { searchBluesky } from "./bluesky";
 import { searchGitHub } from "./github";
 import { resolveTopic } from "./resolve";
 import { formatBundle } from "./format";
+import { deriveSides, newSide, type Side } from "./derive-sides";
 import type { Source } from "./types";
 
 // Tiny hand-rolled arg parse: everything that isn't a known flag is the topic.
@@ -45,12 +46,6 @@ let days = DEFAULT_DAYS;
 let limit = DEFAULT_LIMIT;
 let resolveMode = false;
 const topicParts: string[] = [];
-
-// One side of the research. A normal run is the degenerate case of exactly
-// one side whose name is the whole topic; comparison mode is two or more.
-type Side = { name: string; queries: string[]; githubUser: string; githubRepo: string };
-
-const newSide = (name: string): Side => ({ name, queries: [], githubUser: "", githubRepo: "" });
 
 // Flags that scope to a side (--query, --github-user, --github-repo) attach
 // to the most recent --compare, or to the top-level bucket when no --compare
@@ -85,9 +80,19 @@ for (let i = 0; i < args.length; i++) {
       limit = parseClamped(args[++i], "--limit", DEFAULT_LIMIT, 1, 20);
       break;
     case "--compare": {
+      // Hard error rather than warn-and-continue: an empty value would attach
+      // the following side-scoped flags to the previous side, and a value
+      // starting with "--" means --compare swallowed the next flag as a name.
       const name = (args[++i] ?? "").trim();
-      if (name) compares.push(newSide(name));
-      else console.error("Ignoring empty --compare.");
+      if (!name || name.startsWith("--")) {
+        console.error(
+          name
+            ? `--compare needs a side name, got the flag "${name}".`
+            : "--compare needs a side name.",
+        );
+        process.exit(1);
+      }
+      compares.push(newSide(name));
       break;
     }
     case "--query": {
@@ -147,44 +152,10 @@ if (resolveMode) {
 // Work out the sides. Explicit --compare flags win; otherwise a topic
 // containing "vs"/"versus" auto-splits into one side per segment. A plain
 // topic is a single side, which keeps the original one-shot behaviour.
-let sides: Side[];
-if (compares.length >= 2) {
-  // Side-scoped flags only make sense after a --compare; anything given
-  // before the first one has no side to belong to, so say so rather than
-  // silently dropping it.
-  if (topLevel.queries.length || topLevel.githubUser || topLevel.githubRepo) {
-    console.error(
-      "Ignoring --query/--github-* flags given before the first --compare; " +
-        "place them after the --compare side they belong to.",
-    );
-  }
-  sides = compares;
-} else {
-  if (compares.length === 1) {
-    console.error("--compare needs at least two sides; folding it into a normal run.");
-    topLevel.queries.push(...compares[0]!.queries);
-    topLevel.githubUser ||= compares[0]!.githubUser;
-    topLevel.githubRepo ||= compares[0]!.githubRepo;
-  }
-  // All-caps "VS" is excluded so product names like "VS Code" don't trigger a
-  // bogus comparison; use explicit --compare to compare things containing "VS".
-  const split = topic.split(/\s+(?:[Vv]s\.?|[Vv]ersus)\s+/).map((s) => s.trim()).filter(Boolean);
-  if (split.length >= 2) {
-    // Auto-split comparison. Top-level scoping flags are ambiguous here (which
-    // side would they belong to?), so they are dropped with a pointer to the
-    // explicit form rather than silently applied to every side.
-    if (topLevel.queries.length || topLevel.githubUser || topLevel.githubRepo) {
-      console.error(
-        'Topic looks like a comparison; ignoring top-level --query/--github-* flags. ' +
-          'Use --compare "<side>" followed by that side\'s flags to scope them.',
-      );
-    }
-    sides = split.map(newSide);
-  } else {
-    topLevel.name = topic;
-    sides = [topLevel];
-  }
-}
+// deriveSides is pure (see derive-sides.ts); print its warnings here.
+const derived = deriveSides(topic, compares, topLevel);
+for (const warning of derived.warnings) console.error(warning);
+const sides = derived.sides;
 
 if (sides.length > MAX_SIDES) {
   console.error(`Keeping the first ${MAX_SIDES} sides (${sides.length} given).`);
@@ -215,21 +186,30 @@ console.error(
         "...",
 );
 
+const sideQueriesOf = (side: Side) => (side.queries.length ? side.queries : [side.name]);
+
+// Global web-scrape budget: split --limit across every query in the whole
+// run, not per side. The floor of 2 keeps a plain run useful, but drops to 1
+// once the run's query count alone exceeds the budget, so a three-side
+// comparison with four refined queries per side scrapes 12 pages, not 24.
+// Total pages stay within max(limit + query count, 2 x query count) of the
+// asked-for limit - approximate, but O(limit), and fine on the keyless tier.
+const totalQueries = sides.reduce((n, side) => n + sideQueriesOf(side).length, 0);
+const perQueryLimit = Math.max(totalQueries > limit ? 1 : 2, Math.ceil(limit / totalQueries));
+
+// Lobste.rs has no search endpoint - it pages the /newest feed and filters
+// locally - so sweep the feed exactly once per run and hand each side its
+// slice, instead of re-fetching the same ~35 pages once per side.
+const lobstersBySide = searchLobsters(sides.map(sideQueriesOf), days);
+
 // One full gather per side. All sides and all sources run at once so the
 // comparison is a single pass, not serial per-entity runs. Search-backed
 // sources fan out over that side's refined queries (falling back to the side
-// name); Lobste.rs filters locally over its recent feed, so it takes all of a
-// side's queries in one call. Each source already catches its own errors and
-// returns []; allSettled is a belt-and-suspenders backstop so one rejection
-// can never sink the whole run.
-async function gatherSide(side: Side): Promise<Source[]> {
-  const sideQueries = side.queries.length ? side.queries : [side.name];
-  // Split the web-scrape budget across sides, then across each side's
-  // refined queries. The floor of 2 per query means the budget is
-  // approximate: a two-side comparison with two refined queries per side and
-  // the default limit of 5 may scrape up to 8 pages (2 per query), which the
-  // keyless tier handles fine.
-  const perQueryLimit = Math.max(2, Math.ceil(limit / sides.length / sideQueries.length));
+// name). Each source already catches its own errors and returns [];
+// allSettled is a belt-and-suspenders backstop so one rejection can never
+// sink the whole run.
+async function gatherSide(side: Side, sideIndex: number): Promise<Source[]> {
+  const sideQueries = sideQueriesOf(side);
   const tag = comparison ? `[${side.name}] ` : "";
 
   const fanOut = (search: (q: string, d: number) => Promise<Source[]>) =>
@@ -238,7 +218,7 @@ async function gatherSide(side: Side): Promise<Source[]> {
   const settled = await Promise.allSettled([
     fanOut((q, d) => searchWeb(q, d, perQueryLimit)).then((r) => (console.error(`✓ ${tag}Searched the web`), r)),
     fanOut(searchHackerNews).then((r) => (console.error(`✓ ${tag}Checked Hacker News`), r)),
-    searchLobsters(sideQueries, days).then((r) => (console.error(`✓ ${tag}Checked Lobste.rs`), r)),
+    lobstersBySide.then((bySide) => bySide[sideIndex] ?? []).then((r) => (console.error(`✓ ${tag}Checked Lobste.rs`), r)),
     fanOut(searchBluesky).then((r) => (console.error(`✓ ${tag}Checked Bluesky`), r)),
     searchGitHub(side.name, days, {
       user: side.githubUser || undefined,

@@ -108,8 +108,9 @@ disambiguating. Direct flags: `--query` (repeatable), `--github-user`,
 A topic like `cursor vs zed` runs a full gather per side in one pass and groups
 the research context per side, so the brief can compare traction and shipping
 activity directly.
-Auto-splitting on "vs"/"versus" needs no flags (all-caps "VS" is ignored, so
-"best VS Code extensions" stays a single topic); for ambiguous names, `--compare
+Auto-splitting on "vs"/"versus" in any capitalization needs no flags (only
+all-caps "VS" is exempt, so "best VS Code extensions" stays a single topic);
+for ambiguous names, `--compare
 "<side>"` declares each side explicitly, and any `--query`/`--github-user`/
 `--github-repo` flags that follow scope to that side.
 The web-scrape budget is shared across sides, so raise `--limit` when you want
