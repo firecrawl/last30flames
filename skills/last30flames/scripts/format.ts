@@ -56,7 +56,7 @@ export function formatBundle(bundle: ResearchBundle): string {
       ? `# Research context: ${comparing.map((e) => `"${e}"`).join(" vs ")} (last ${bundle.days} days)\n\n`
       : `# Research context: "${bundle.topic}" (last ${bundle.days} days)\n\n`) +
     (merged
-      ? `${bundle.sources.length} sources gathered from web, Hacker News, Lobste.rs, Bluesky, GitHub, merged into ${clusters.length} numbered ${clusters.length === 1 ? "entry" : "entries"} where the same story appeared in several sources.\n`
+      ? `${bundle.sources.length} sources gathered from web, Hacker News, Lobste.rs, Bluesky, GitHub, merged into ${clusters.length === 1 ? "one" : clusters.length} numbered ${clusters.length === 1 ? "entry" : "entries"} where the same story appeared in several sources.\n`
       : `${bundle.sources.length} sources gathered from web, Hacker News, Lobste.rs, Bluesky, GitHub.\n`) +
     (bundle.queries?.length
       ? `Searched via refined queries: ${bundle.queries.map((q) => `"${q}"`).join(", ")}.\n`
