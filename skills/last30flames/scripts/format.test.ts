@@ -80,6 +80,18 @@ describe("formatBundle", () => {
     expect(out).toContain("merged into one numbered entry");
   });
 
+  test("plural merged header reports the count", () => {
+    const out = formatBundle(
+      bundle([
+        web("https://example.com/one"),
+        hn("https://example.com/one"),
+        web("https://example.com/two"),
+        hn("https://example.com/two"),
+      ]),
+    );
+    expect(out).toContain("merged into 2 numbered entries");
+  });
+
   test("single-origin entries render exactly as before", () => {
     const out = formatBundle(bundle([hn("https://example.com/post")]));
     expect(out).toContain("## [1] hackernews: Big release — 120 points, 45 comments");
